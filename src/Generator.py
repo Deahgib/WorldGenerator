@@ -1,14 +1,12 @@
-
-from Entities import *
-from RandomRoll import Dice
-from Utils import *
+from src.Entities.City import City
+from src.Entities.Entities import *
+from src.Entities.Humanoid import Humanoid
+from src.Utils import *
 import random
-from Dates import *
-import heapq
-import names
+from src.Dates import *
 from names import NameGenerator
 from multiprocessing.dummy import Pool as ThreadPool
-import numpy as np
+from src.simulator.State import State
 
 import time
 
@@ -48,9 +46,10 @@ class Generator:
         self.cities = set()
         self.world_gen = WorldGen()
         self.names = NameGenerator(primitives['races']['humanoid'], ['male', 'female'])
-        self.pool = ThreadPool(150)
 
     def generate(self, size=(25,25)):
+        self.pool = ThreadPool(THREAD_POOLS)
+
         start = time.time()
         x, y = size
         avg = int(round(math.sqrt(x * y)))
@@ -91,6 +90,10 @@ class Generator:
         #         line = line + self.world_gen.map[self.world_gen.map_width * y + x].type[0]
         #
         #     print (line)
+        self.pool.close()
+        self.pool.join()
+
+        return State(self.world_gen.map, self.humanoids, self.cities, self.gods)
 
     def generate_gods(self, max):
         self.gods = set()

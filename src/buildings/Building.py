@@ -1,4 +1,4 @@
-from Entities import *
+from src.Entities.Entities import *
 
 class Building(Entity):
     def __init__(self):

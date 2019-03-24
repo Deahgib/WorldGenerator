@@ -4,19 +4,6 @@ class Entity:
         self.name = ""
         self.location = (0, 0)
 
-class City(Entity):
-    def __init__(self):
-        Entity.__init__(self)
-        self.race = ''
-        self.status = ''
-        self.population = 0
-        self.patron_god = ''
-        self.patron_god_attributes = ''
-        self.birth_rate = 0
-        self.death_rate = 0
-        self.food = 0
-        self.work = set()
-        self.wealth = 0
 
 class Being(Entity):
     def __init__(self):
@@ -50,19 +37,6 @@ class Mortal(Being):
             "wis": 0,
             "cha": 0
         }
-
-
-class Humanoid(Mortal):
-    def __init__(self):
-        Mortal.__init__(self)
-        self.fname = ''
-        self.lname = ''
-        self.favorite_job = ''
-        self.favorite_god = ''
-        self.favorite_god_attributes = ''
-        self.lawful = 0
-        self.month_of_birth = 0
-        self.happiness = 0
 
 
 class Animal(Mortal):

@@ -1,11 +1,14 @@
 import pandas as pd
 import os
 import shutil
+from names import NameGenerator
+from src.RandomRoll import Dice
 
-THREAD_POOLS = 16
+THREAD_POOLS = 32
 
 HUMANOID_CONSUMES = 1
 HUMANOID_FARMS = 4
+
 
 primitives = {
     'territories': ['wilderness','forest', 'crops'],
@@ -54,6 +57,9 @@ primitives = {
     },
     'geni': ["humanoid"]
 }
+
+names = NameGenerator(primitives['races']['humanoid'], ["male", "female"])
+dice = Dice()
 
 def nlargest(in_list, N):
     assert in_list is not None, "Input list is None"

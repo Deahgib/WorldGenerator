@@ -1,10 +1,7 @@
-import pandas as pd
-import random
-
-from Utils import *
-from Dates import *
-from Generator import Generator
-from Simulator import Simulator
+from src.Utils import *
+from src.Dates import *
+from src.Generator import Generator
+from src.simulator.Simulator import Simulator
 
 import time
 
@@ -14,15 +11,15 @@ if __name__ == "__main__":
 
     worldgen = Generator()
     print('Generating world')
-    worldgen.generate((5, 5))
+    state = worldgen.generate((5, 5))
 
     start = time.time()
-    simulator = Simulator(worldgen.world_gen.map, worldgen.humanoids, worldgen.cities, worldgen.gods)
+    simulator = Simulator(state)
     simulator.age(50)
     end = time.time()
-    build_table(simulator.date.month, simulator.date.year, simulator.humanoids, simulator.gods, simulator.cities)
+    build_table(simulator.state.date.month, simulator.state.date.year, simulator.state.humanoids, simulator.state.gods, simulator.state.cities)
 
-    print("____SIMULATION OVER____ Took {} seconds - Lasted {} months and {} years".format(end - start, simulator.date.year * len(calendar['months']), simulator.date.year))
+    print("____SIMULATION OVER____ Took {} seconds - Lasted {} months and {} years".format(end - start, simulator.state.date.year * len(calendar['months']), simulator.state.date.year))
 
     print("# ----------- #")
     print("Building Tables")
