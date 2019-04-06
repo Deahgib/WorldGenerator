@@ -1,7 +1,13 @@
 from src.Entities.Entities import Mortal
-from src.JobManager import *
 import random
 from src.Utils import *
+
+class Belief():
+    def __init__(self):
+        self.hostile = False
+        self.love = False
+        self.happy = False
+        self.stress = False
 
 class Humanoid(Mortal):
     def __init__(self):
@@ -14,9 +20,68 @@ class Humanoid(Mortal):
         self.lawful = 0
         self.month_of_birth = 0
         self.happiness = 0
+        self.beliefs_graph = {}
+        self.desires_graph = {}
+
+    def do_job(self):
+        # Do work
+        if self.home.work.__len__() > 0:
+            if self.favorite_job in [w for w in self.home.work]:
+                job = self.favorite_job
+                self.temperament = max(min(self.temperament + 0.1, 1.0), -1.0)
+            else:
+                if self.home.work["farm"] > 0:
+                    job = "farm"
+                    self.home.work["farm"] -= 1
+                elif self.home.work["industry"] > 0:
+                    job = "industry"
+                    self.home.work["industry"] -= 1
+
+            # print("{} has job {}".format(humanoid.name, job))
+            if job == "farm":
+                self.home.food += HUMANOID_FARMS
+            elif job == "industry":
+                self.home.wealth += 1
+
+            self.temperament = max(min(self.temperament + 0.1, 1.0), -1.0)
+
+    def percepts(self, state):
+        pop, friends = state.get_local(self)
+        return (pop, friends, self.home.work)
+
+    def beliefs(self, state, percepts):
+        local, friends, jobs = percepts
+        beliefs_graph = {
+            "people": len(friends) > 0,
+            "worship": state.date.month in self.favorite_god.divine_attributes,
+            "familly": random.random() > 0.9
+        }
+        return beliefs_graph
+
+    def desires(self, state, percepts):
+        local, friends, jobs = percepts
+        self.temperament = max(min(self.temperament + random.gauss(0.0, 0.1), 1.0), -1.0)
+        self.happiness = max(min(self.happiness + random.gauss(0.0, 0.1), 1.0), -1.0)
+        desires_graph = {
+            "love": random.random() > 0.9,
+            "procreate": random.random() > 0.9,
+            "happy": self.happiness > 0,
+            "violent": self.happiness < 0 and self.goodness < 0 and self.temperament < 0
+        }
+
+        return desires_graph
+
+    def reciprocate_love(self):
+        return self.desires_graph['love']
 
     def actions(self, state):
         desire = random.random()
+        percepts = self.percepts(state)
+        self.beliefs_graph = self.beliefs(state, percepts)
+        self.desires_graph = self.desires(state, percepts)
+        local, friends, jobs = percepts
+
+        #yield
 
         if self.health > 0:
             if self.home.food > 0:
@@ -24,14 +89,10 @@ class Humanoid(Mortal):
                 self.health = min(self.health + 0.2, 1.0)
             else:
                 #print("{} is starving!".format(self.name))
-                self.health = max(self.health - 0.2, 0.0)
+                self.health = max(self.health - 0.5, 0.0)
 
             if self.adult:
-                local = [r for r in state.humanoids if r.location == self.location]
-                local_friends = [r for r in local if r.race == self.race]
-
-                self.temperament = max(min(self.temperament + random.gauss(0.0, 0.1), 1.0), -1.0)
-                if self.temperament < -0.5 and self.lawful < -0.25 and self.goodness < -0.25:
+                if self.desires_graph['violent']:
                     #print("{} is angry".format(humanoid.name))
                     # TODO Attack a closeby humanoid
                     self.temperament += max(min(self.temperament + 0.2, 1.0), -1.0)
@@ -42,33 +103,24 @@ class Humanoid(Mortal):
                     #if victim.health <= 0.1:
                         #print('{} killed {}'.format(humanoid.name, victim.name))
                 else:
-                    # TODO Do work
-                    self.temperament = max(min(self.temperament + 0.1, 1.0), -1.0)
-
                     # Do Love
-                    if desire > 0.7:
+                    if self.beliefs_graph['people'] and self.desires_graph['procreate']:
                         # print("{} wants a child".format(humanoid.name))
                         self.desire = True
-                        oposite_sex = [s for s in local_friends if s.sex != self.sex and s.desire]
+                        oposite_sex = [s for s in friends if s.sex != self.sex and s.desire]
                         if len(oposite_sex) > 0:
                             partner = random.choice(oposite_sex)
-
-                            # print("{} courts {}".format(humanoid.name, partner.name))
-
-                            lust = random.random()
-                            if lust > 0.1:
+                            if partner.reciprocate_love():
                                 if partner.sex == 'male':
                                     self.birth_humanoid(state, partner, self)
                                 else:
                                     self.birth_humanoid(state, self, partner)
-                            else:
-                                self.temperament = max(min(self.temperament - 0.1, 1.0), -1.0)
 
-                    elif  desire < 0.1:
+                    else:
                         self.desire = False
 
                     if self.age < primitives['ages'][self.race]["oldest"]:
-                        state.job = do_job(self)
+                        state.job = self.do_job()
 
         # if humanoid.health < 1:
         #     humanoid.health += max(min(humanoid.health + 0.1, 1.0), 0.0)
@@ -85,6 +137,8 @@ class Humanoid(Mortal):
         if self.age >= (oldest):
             if random.random() < 0.1:
                 self.health = 0
+                state.kill_humanoid(self)
+                return
                 #print("{} is taken by old age".format(humanoid.name))
 
         if self.health <= 0:

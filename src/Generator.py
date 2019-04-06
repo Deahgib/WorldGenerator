@@ -75,7 +75,7 @@ class Generator:
 
         start = time.time()
         tot_cities = int(round(math.sqrt((x * y)/len(primitives['races']['humanoid']))))
-        self.gen_cities(2)
+        self.gen_cities(tot_cities)
         end = time.time()
         print("{} cities | ({} seconds)".format(len(self.cities), end - start))
 

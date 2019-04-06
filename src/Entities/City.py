@@ -1,6 +1,8 @@
 from src.Entities.Entities import Entity
 from src.Utils import *
 
+import math
+
 class City(Entity):
     def __init__(self):
         Entity.__init__(self)
@@ -16,27 +18,34 @@ class City(Entity):
         self.wealth = 0
 
 
+    def build_work(self, adults):
+        self.work = list()
+
+        # Feed the population
+        fc = food_cost(self.population)
+        fed_people = self.food / HUMANOID_CONSUMES
+        unfed_people = self.population - fed_people
+        needed_food_workers = max(math.ceil(unfed_people) , 0)
+
+        obj = {
+            "farm": needed_food_workers
+        }
+
+        available_workers = len(adults) - needed_food_workers
+        if available_workers > 0:
+            obj["industry"] = available_workers
+
+        self.work = obj
+
+
     def actions(self, state):
         population = [h for h in state.humanoids if h.home == self]
+        adults = [a for a in population if a.adult]
         self.population = len(population)
         if self.population <= 0:
             print("The city of {} has fallen to ruin!".format(self.name))
             return
 
-        #adults = [a for a in population if a.adult]
-        #births = [b for b in self.births if b.home == city.location]
-        #deaths = [d for d in self.deaths if d.home == city.location]
-        #city.birth_rate = 0 if len(adults) <= 0 else round(len(births) / len(adults) * 1000, 2)
-        #city.death_rate = 0 if len(adults) <= 0 else round(len(deaths) / len(adults) * 1000, 2)
-        self.work = set()
+        self.build_work(adults)
 
-        fc = food_cost(self.population)
-        if self.food - 2*fc < 0:
-            self.work.add("farm")
-        else:
-            self.work.add("farm")
-            self.work.add("industry")
-
-        #print(fc)
-        #print(city.work)
-        print("-- City FOOD {} POPULATION {} WEALTH {} WORK {!r}".format(self.food, self.population, self.wealth, self.work))
+        print("Year {} month {} | City {} - FOOD {} | POPULATION {} adults: {} | WEALTH {} | WORK {}".format(state.date.year, state.date.month,  self.name, self.food, self.population, len(adults), self.wealth, self.work))
