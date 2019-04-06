@@ -3,6 +3,7 @@ import os
 import shutil
 from names import NameGenerator
 from src.RandomRoll import Dice
+import math
 
 THREAD_POOLS = 32
 
@@ -97,10 +98,15 @@ def build_table(month, year, hum, god, cit):
     # hdf = pd.DataFrame(c)
     # hdf.to_csv('cities.csv')
     hdf = pd.DataFrame(g+c+h)
-    if not os.path.exists('./history/year{}'.format(year)):
-        os.mkdir('./history/year{}'.format(year))
 
-    hdf.to_csv('history/year{}/{}.csv'.format(year, month))
+    century = math.floor(year/100) + 1
+
+    if not os.path.exists('./history/century{}'.format(century)):
+        os.mkdir('./history/century{}'.format(century))
+    if not os.path.exists('./history/century{}/year{}'.format(century, year)):
+        os.mkdir('./history/century{}/year{}'.format(century, year))
+
+    hdf.to_csv('history/century{}/year{}/{}.csv'.format(century, year, month))
 
 def food_cost(population):
     return population * HUMANOID_CONSUMES

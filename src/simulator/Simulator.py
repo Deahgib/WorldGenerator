@@ -32,13 +32,13 @@ class Simulator:
             self.yearly_births = set()
             self.yearly_deaths = set()
             for m in calendar['months']:
-                self.simulate__month()
+                self.simulate_month()
                 #self.yearly_population += len(self.humanoids)
                 #self.yearly_births = self.yearly_births | self.births
                 #self.yearly_deaths = self.yearly_deaths | self.deaths
                 #build_table(self.date.month, self.date.year, self.humanoids, self.gods, self.cities)
                 self.state.date.inc_month()
-                print(">{}".format(self.state.date.month))
+                #print("Month of {}".format(self.state.date.month))
 
                 if len(self.state.humanoids) <= 0:
                     print("__ALL HUMANOIDS DIED")
@@ -46,6 +46,9 @@ class Simulator:
 
             #self.birth_rate = round(len(self.yearly_births) / (self.yearly_population / len(calendar['months'])) * 1000, 2)
             #self.death_rate = round(len(self.yearly_deaths) / (self.yearly_population / len(calendar['months'])) * 1000, 2)
+
+            build_table(self.state.date.month, self.state.date.year, self.state.humanoids,
+                        self.state.gods, self.state.cities)
 
             # print(">Year {}, {} humanoids, {} birth rate {} death rate, {} index"
             #       .format(self.date.year, len(self.humanoids), self.birth_rate,
@@ -55,10 +58,10 @@ class Simulator:
 
 
 
-    def simulate__month(self):
+    def simulate_month(self):
         self.pool.map(lambda c: c.actions(self.state), self.state.cities)
         self.pool.map(lambda h: h.actions(self.state), self.state.humanoids)
-
+        #self.pool.map(lambda h: h.actions(self.state), self.state.humanoids)
         self.state.end_frame(self.pool)
 
         #self.pool.close()
