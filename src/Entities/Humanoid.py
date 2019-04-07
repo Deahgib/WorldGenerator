@@ -26,7 +26,7 @@ class Humanoid(Mortal):
     def do_job(self):
         # Do work
         if self.home.work.__len__() > 0:
-            if self.favorite_job in [w for w in self.home.work]:
+            if self.favorite_job in self.home.work.keys():
                 job = self.favorite_job
                 self.temperament = max(min(self.temperament + 0.1, 1.0), -1.0)
             else:
