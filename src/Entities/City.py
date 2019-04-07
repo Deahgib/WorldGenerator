@@ -41,9 +41,10 @@ class City(Entity):
         self.work = obj
 
 
-    def fall_to_ruin(self):
+    def fall_to_ruin(self, state):
         self.ruin = True
-        print("The city of {} has fallen to ruin!".format(self.name))
+        log_event(state.date, "The city of {} has fallen to ruin!".format(self.name))
+        #print("The city of {} has fallen to ruin!".format(self.name))
 
     def actions(self, state):
         if not self.ruin:
@@ -51,9 +52,10 @@ class City(Entity):
             adults = [a for a in population if a.adult]
             self.population = len(population)
             if self.population <= 0:
-                self.fall_to_ruin()
+                self.fall_to_ruin(state)
                 return
 
             self.build_work(adults)
+            log_city_status(state.date, "{},{},{},{},{},{!r}".format(self.name, self.population, len(adults), self.food, self.wealth, self.work))
 
-            print("Year {} month {} | City {} - FOOD {} | POPULATION {} adults: {} | WEALTH {} | WORK {}".format(state.date.year, state.date.month,  self.name, self.food, self.population, len(adults), self.wealth, self.work))
+            #print("Year {} month {} | City {} - FOOD {} | POPULATION {} adults: {} | WEALTH {} | WORK {}".format(state.date.year, state.date.month,  self.name, self.food, self.population, len(adults), self.wealth, self.work))

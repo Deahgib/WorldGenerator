@@ -1,3 +1,5 @@
+from src.Utils import *
+
 calendar = {
     'months':["stone", '', 'Winter', 'Spring']
 }
@@ -12,6 +14,9 @@ class Date:
         v += 1
         if v >= len(calendar['months']):
             v = 0
+
+            log_event(self, "New Years Eve")
+            print("New Years Eve {}".format(self.year))
             self.year += 1
 
         self.month = calendar['months'][v]

@@ -6,6 +6,8 @@ from src.RandomRoll import Dice
 import math
 import logging
 
+ENABLE_LOG = True
+
 THREAD_POOLS = 32
 
 HUMANOID_CONSUMES = 1
@@ -66,10 +68,27 @@ dice = Dice()
 
 
 def setup_log():
-    logging.basicConfig(filename='example.log', level=logging.DEBUG)
-    logging.debug('This message should go to the log file')
-    logging.info('So should this')
-    logging.warning('And this, too')
+    if os.path.exists('./logs'):
+        shutil.rmtree('./logs')
+
+    os.mkdir('./logs')
+
+    f = open("event.log", "w+")
+    f.close()
+    f = open("logs/city_status.csv", "w+")
+    f.close()
+
+def log_event(date, message):
+    if ENABLE_LOG:
+        f = open("logs/event.csv", "a+")
+        f.write("{},{},event,{}\n".format(date.year, date.month, message))
+        f.close()
+
+def log_city_status(date, message):
+    if ENABLE_LOG:
+        f = open("logs/city_status.csv", "a+")
+        f.write("{},{},city_status,{}\n".format(date.year, date.month, message))
+        f.close()
 
 def nlargest(in_list, N):
     assert in_list is not None, "Input list is None"
