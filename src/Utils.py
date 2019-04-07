@@ -13,7 +13,7 @@ HUMANOID_FORAGES = 2
 
 
 primitives = {
-    'territories': ['wilderness','forest', 'crops'],
+    'territories': ['sea', 'wilderness','forest', 'crops'],
     'divine_attributes': ['harvest', 'war', 'thunder', 'lore', 'harmony', 'time', 'fertility', 'chaos', 'magic', 'hunt', 'necromancy'],
     'attribute_names': ["str", "dex", "con", "int", "wis", "cha"],
     'attributes': {

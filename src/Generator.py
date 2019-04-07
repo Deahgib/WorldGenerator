@@ -96,7 +96,7 @@ class Generator:
         self.pool.close()
         self.pool.join()
 
-        return State(self.world_gen.map, self.humanoids, self.cities, self.gods)
+        return State(self.world_gen, self.humanoids, self.cities, self.gods)
 
     def generate_gods(self, max):
         self.gods = set()
@@ -121,7 +121,7 @@ class Generator:
 
     def gen_city(self, pop_mod):
         city = City()
-        city.population = pop_mod * random.randint(5, 12)
+        city.population = random.randint(20, 60)
         city.food = food_cost(city.population) * 2
         city.wealth = city.population
         city.location = (random.randint(0,self.world_gen.map_width), random.randint(0,self.world_gen.map_height))

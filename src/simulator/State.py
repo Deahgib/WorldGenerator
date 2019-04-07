@@ -3,7 +3,7 @@ from src.Dates import Date
 class State:
     def __init__(self, map, humanoids, cities, gods):
         """ Named arguments, map, humanoids, cities, gods """
-        self.map = list()
+        self.world_gen = None
         self.humanoids = set()
         self.cities = set()
         self.gods = set()
@@ -15,7 +15,7 @@ class State:
 
     def force_state(self, **kwargs):
         if kwargs['map'] is not None:
-            self.map = list(kwargs['map'])
+            self.world_gen = kwargs['map']
         if kwargs['humanoids'] is not None:
             self.humanoids = set(kwargs['humanoids'])
         if kwargs['cities'] is not None:

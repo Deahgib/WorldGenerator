@@ -4,6 +4,7 @@ from src.Utils import *
 import random
 from multiprocessing.dummy import Pool as ThreadPool
 import gc
+from src.simulator.SimulationRenderer import *
 
 class Simulator:
     def __init__(self, state):
@@ -12,14 +13,17 @@ class Simulator:
         self.birth_rate = 0
         self.death_rate = 0
         self.pool = ThreadPool(THREAD_POOLS)
+        self.renderer = SimuulationRrenderer()
 
     def age(self, simulation_years):
+        self.renderer.setup(self.state)
         self.yearly_population = 0
         for y in range(simulation_years):
             self.yearly_births = set()
             self.yearly_deaths = set()
             for m in calendar['months']:
                 self.simulate_month()
+                self.renderer.update(self.state)
                 self.state.date.inc_month()
 
                 if len(self.state.humanoids) <= 0:
