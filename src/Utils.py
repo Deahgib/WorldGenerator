@@ -111,3 +111,4 @@ def build_table(month, year, hum, god, cit):
 
 def food_cost(population):
     return population * HUMANOID_CONSUMES
+
