@@ -6,6 +6,7 @@ import math
 class City(Entity):
     def __init__(self):
         Entity.__init__(self)
+        self.id = self
         self.race = ''
         self.status = ''
         self.population = 0

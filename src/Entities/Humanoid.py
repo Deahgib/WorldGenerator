@@ -12,6 +12,7 @@ class Belief():
 class Humanoid(Mortal):
     def __init__(self):
         Mortal.__init__(self)
+        self.id = self
         self.fname = ''
         self.lname = ''
         self.favorite_job = ''

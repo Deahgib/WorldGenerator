@@ -52,5 +52,6 @@ class Imortal(Being):
 class God(Imortal):
     def __init__(self):
         Imortal.__init__(self)
+        self.id = self
         self.divine_attributes = set()
         self.worshiped_by = set()
