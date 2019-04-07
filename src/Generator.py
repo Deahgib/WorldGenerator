@@ -74,10 +74,13 @@ class Generator:
         print("{} territories | ({} seconds)".format(len(self.world_gen.map), end - start))
 
         start = time.time()
-        tot_cities = int(round(math.sqrt((x * y)/len(primitives['races']['humanoid']))))
+        ideal_max = math.ceil((x * y) / 200)
+
+        tot_cities = math.ceil( ideal_max + random.randint(-math.ceil(ideal_max * 0.2), math.ceil(ideal_max * 0.2) ) )
+        tot_cities = 1 if tot_cities <= 0 else tot_cities
         self.gen_cities(tot_cities)
         end = time.time()
-        print("{} cities | ({} seconds)".format(len(self.cities), end - start))
+        print("{} cities | Ideal max cities {} | Mod {} | ({} seconds)".format(len(self.cities), ideal_max, math.ceil(ideal_max * 0.2), end - start))
 
         start = time.time()
         self.generate_humanoids()
@@ -119,7 +122,7 @@ class Generator:
     def gen_city(self, pop_mod):
         city = City()
         city.population = pop_mod * random.randint(5, 12)
-        city.food = food_cost(city.population) * 5
+        city.food = food_cost(city.population) * 2
         city.wealth = city.population
         city.location = (random.randint(0,self.world_gen.map_width), random.randint(0,self.world_gen.map_height))
         city.name = rword.generate_random_words(1).capitalize()

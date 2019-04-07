@@ -11,11 +11,11 @@ if __name__ == "__main__":
 
     worldgen = Generator()
     print('Generating world')
-    state = worldgen.generate((5, 5))
+    state = worldgen.generate((50, 50))
 
     start = time.time()
     simulator = Simulator(state)
-    simulator.age(200)
+    simulator.age(99)
     end = time.time()
     print("____SIMULATION OVER____ Took {} seconds - Lasted {} months and {} years".format(end - start, simulator.state.date.year * len(calendar['months']), simulator.state.date.year))
 
