@@ -1,6 +1,7 @@
 from src.Entities.Entities import Entity
 from src.Utils import *
 
+import logging
 import math
 
 class City(Entity):
@@ -17,6 +18,7 @@ class City(Entity):
         self.food = 0
         self.work = set()
         self.wealth = 0
+        self.ruin = False
 
 
     def build_work(self, adults):
@@ -39,14 +41,19 @@ class City(Entity):
         self.work = obj
 
 
+    def fall_to_ruin(self):
+        self.ruin = True
+        print("The city of {} has fallen to ruin!".format(self.name))
+
     def actions(self, state):
-        population = [h for h in state.humanoids if h.home == self]
-        adults = [a for a in population if a.adult]
-        self.population = len(population)
-        if self.population <= 0:
-            print("The city of {} has fallen to ruin!".format(self.name))
-            return
+        if not self.ruin:
+            population = [h for h in state.humanoids if h.home == self]
+            adults = [a for a in population if a.adult]
+            self.population = len(population)
+            if self.population <= 0:
+                self.fall_to_ruin()
+                return
 
-        self.build_work(adults)
+            self.build_work(adults)
 
-        print("Year {} month {} | City {} - FOOD {} | POPULATION {} adults: {} | WEALTH {} | WORK {}".format(state.date.year, state.date.month,  self.name, self.food, self.population, len(adults), self.wealth, self.work))
+            print("Year {} month {} | City {} - FOOD {} | POPULATION {} adults: {} | WEALTH {} | WORK {}".format(state.date.year, state.date.month,  self.name, self.food, self.population, len(adults), self.wealth, self.work))

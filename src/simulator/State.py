@@ -36,7 +36,7 @@ class State:
         threadPool.map(self.humanoids.remove, self.deaths)
         self.humanoids = self.humanoids | self.births
 
-        threadPool.map(self.cities.remove, set([c for c in self.cities if c.population <= 0]))
+        #threadPool.map(self.cities.remove, set([c for c in self.cities if c.population <= 0]))
 
         self.deaths = set()
         self.births = set()

@@ -7,15 +7,16 @@ import time
 
 #random.seed('a')
 if __name__ == "__main__":
+    #setup_log()
     purge_tables()
 
     worldgen = Generator()
     print('Generating world')
-    state = worldgen.generate((50, 50))
+    state = worldgen.generate((18, 18))
 
     start = time.time()
     simulator = Simulator(state)
-    simulator.age(99)
+    simulator.age(299)
     end = time.time()
     print("____SIMULATION OVER____ Took {} seconds - Lasted {} months and {} years".format(end - start, simulator.state.date.year * len(calendar['months']), simulator.state.date.year))
 

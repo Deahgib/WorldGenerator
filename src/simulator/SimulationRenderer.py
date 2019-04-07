@@ -2,6 +2,7 @@
 import pygame
 import math
 import random
+from src.Utils import *
 
 class SimuulationRrenderer:
 
@@ -32,9 +33,10 @@ class SimuulationRrenderer:
                 if city is not None and len(city) > 0:
                     for c in city:
                         city_colour = self.get_city_colour(state, c)
-                        race_colour = self.get_race_colour(c.race)
                         pygame.draw.circle(self.win, city_colour, ((off_x + math.floor(width/2)), (off_y + math.floor(height/2))), math.floor(width / 2) )
-                        pygame.draw.circle(self.win, race_colour, ((off_x + math.floor(width/2)), (off_y + math.floor(height/2))), math.floor(width / 4) )
+                        if not c.ruin:
+                            race_colour = self.get_race_colour(c.race)
+                            pygame.draw.circle(self.win, race_colour, ((off_x + math.floor(width/2)), (off_y + math.floor(height/2))), math.floor(width / 4) )
 
         pygame.display.update()
 
@@ -48,13 +50,25 @@ class SimuulationRrenderer:
         return colour_map[race]
 
     def get_city_colour(self, state, city):
+        if city.ruin:
+            return (128,128,128)
+
         if city.population <= 0 or len(state.humanoids) <= 0:
             return (0, 0, 0)
-        pop_mod = min(city.population / len(state.humanoids), 1.0)
-        saturation = math.floor(pop_mod * 255)
-        #saturation = random.randint(0, 255)
-        #print(saturation)
-        return (saturation, saturation, saturation)
+
+        if city.population * HUMANOID_CONSUMES < city.food:
+            return (255, 0, 0)
+
+        if city.population * HUMANOID_CONSUMES * 4 > city.food:
+            return (0, 255, 0)
+
+        return (255, 255, 0)
+
+        # pop_mod = min(city.population / len(state.humanoids), 1.0)
+        # saturation = math.floor(pop_mod * 255)
+        # #saturation = random.randint(0, 255)
+        # #print(saturation)
+        # return (saturation, saturation, saturation)
 
     def get_territory_colour(self, state, x, y):
         colour_map = {

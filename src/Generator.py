@@ -63,7 +63,7 @@ class Generator:
         for g in self.gods:
             for a in g.divine_attributes:
                 attrs.add(a)
-            calendar['months'].append(g.name)
+            #calendar['months'].append(g.name)
 
         for a in attrs:
             calendar['months'].append(a.capitalize())

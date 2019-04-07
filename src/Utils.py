@@ -4,6 +4,7 @@ import shutil
 from names import NameGenerator
 from src.RandomRoll import Dice
 import math
+import logging
 
 THREAD_POOLS = 32
 
@@ -62,6 +63,13 @@ primitives = {
 
 names = NameGenerator(primitives['races']['humanoid'], ["male", "female"])
 dice = Dice()
+
+
+def setup_log():
+    logging.basicConfig(filename='example.log', level=logging.DEBUG)
+    logging.debug('This message should go to the log file')
+    logging.info('So should this')
+    logging.warning('And this, too')
 
 def nlargest(in_list, N):
     assert in_list is not None, "Input list is None"

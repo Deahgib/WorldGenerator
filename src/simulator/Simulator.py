@@ -31,8 +31,7 @@ class Simulator:
                     return
 
 
-            build_table(self.state.date.month, self.state.date.year, self.state.humanoids,
-                        self.state.gods, self.state.cities)
+            #build_table(self.state.date.month, self.state.date.year, self.state.humanoids, self.state.gods, self.state.cities)
 
             gc.collect()
 
