@@ -19,6 +19,9 @@ class City(Entity):
         self.work = set()
         self.wealth = 0
         self.ruin = False
+        self.buildings = {}
+
+
 
 
     def build_work(self, adults):
@@ -58,4 +61,4 @@ class City(Entity):
             self.build_work(adults)
             log_city_status(state.date, "{},{},{},{},{},{!r}".format(self.name, self.population, len(adults), self.food, self.wealth, self.work))
 
-            #print("Year {} month {} | City {} - FOOD {} | POPULATION {} adults: {} | WEALTH {} | WORK {}".format(state.date.year, state.date.month,  self.name, self.food, self.population, len(adults), self.wealth, self.work))
+            print("Year {} month {} | City {} - FOOD {} | POPULATION {} adults: {} | WEALTH {} | WORK {}".format(state.date.year, state.date.month,  self.name, self.food, self.population, len(adults), self.wealth, self.work))

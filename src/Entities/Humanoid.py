@@ -2,12 +2,13 @@ from src.Entities.Entities import Mortal
 import random
 from src.Utils import *
 
-class Belief():
-    def __init__(self):
-        self.hostile = False
-        self.love = False
-        self.happy = False
-        self.stress = False
+# class Belief():
+#     def __init__(self):
+#         self.hostile = False
+#         self.love = False
+#         self.happy = False
+#         self.stress = False
+
 
 class Humanoid(Mortal):
     def __init__(self):
@@ -23,6 +24,9 @@ class Humanoid(Mortal):
         self.happiness = 0
         self.beliefs_graph = {}
         self.desires_graph = {}
+
+    def is_alive(self):
+        return self.health > 0
 
     def do_job(self):
         # Do work
@@ -76,7 +80,9 @@ class Humanoid(Mortal):
         return self.desires_graph['love']
 
     def actions(self, state):
-        desire = random.random()
+
+
+        #desire = random.random()
         percepts = self.percepts(state)
         self.beliefs_graph = self.beliefs(state, percepts)
         self.desires_graph = self.desires(state, percepts)
@@ -120,7 +126,7 @@ class Humanoid(Mortal):
                     else:
                         self.desire = False
 
-                    if self.age < primitives['ages'][self.race]["oldest"]:
+                    if self.age < primitives['attributes'][self.race]["oldest"]:
                         state.job = self.do_job()
 
         # if humanoid.health < 1:
@@ -129,12 +135,12 @@ class Humanoid(Mortal):
         # Age humanoid
         if self.month_of_birth == state.date.month:
             self.age += 1
-            if self.age == primitives['ages'][self.race]['adult']:
+            if self.age == primitives['attributes'][self.race]['adult']:
                 self.adult = True
                 #print('{} has become an adult'.format(humanoid.name))
 
 
-        oldest = primitives['ages'][self.race]['oldest']
+        oldest = primitives['attributes'][self.race]['oldest']
         if self.age >= (oldest):
             if random.random() < 0.1:
                 self.health = 0
@@ -164,12 +170,12 @@ class Humanoid(Mortal):
         baby.sex = sex
         baby.adult = False
         baby.month_of_birth = state.date.month
-        baby.attributes["str"] = str
-        baby.attributes["dex"] = dex
-        baby.attributes["con"] = con
-        baby.attributes["int"] = int
-        baby.attributes["wis"] = wis
-        baby.attributes["cha"] = cha
+        baby.attr_str = str
+        baby.attr_agi = dex
+        baby.attr_con = con
+        baby.attr_int = int
+        baby.attr_wis = wis
+        baby.attr_cha = cha
         baby.fname = names.get_first_name(race='human', gender=baby.sex)
         baby.lname = mother.lname
         baby.name = baby.fname + " " + baby.lname

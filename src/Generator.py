@@ -150,11 +150,11 @@ class Generator:
         e.health = 1
         e.genus = random.choice(primitives['geni'])
         e.race = random.choice(primitives['races'][e.genus]) if race is None else race
-        e.age = random.randint(0, primitives['ages'][e.race]['oldest'])
+        e.age = random.randint(0, primitives['attributes'][e.race]['oldest'])
         e.sex = 'male' if self.dice.d2() == 1 else 'female'
-        e.adult = e.age >= primitives['ages'][e.race]['adult']
+        e.adult = e.age >= primitives['attributes'][e.race]['adult']
         e.month_of_birth = calendar['months'][random.randint(0, len(calendar['months'])-1)]
-        e.attributes = self.roll_attributes(primitives['attributes'][e.race]['roll'], primitives['attributes'][e.race]['take'])
+        e.attr_str, e.attr_agi, e.attr_con, e.attr_int, e.attr_wis, e.attr_cha = self.roll_attributes(primitives['attributes'][e.race]['roll'], primitives['attributes'][e.race]['take'])
         e.fname = self.names.get_first_name(race='human' ,gender=e.sex)
         e.lname = self.names.get_last_name(race= 'human')
         e.name = e.fname + " " + e.lname
@@ -165,15 +165,17 @@ class Generator:
         e.goodness =  max(min(random.gauss(e.favorite_god.goodness, 0.2), 1.0), -1.0)
         e.lawful = max(min(random.gauss(0.0, 0.5), 1.0), -1.0)
         e.temperament = max(min(random.gauss(0.0, 0.1), 1.0), -1.0)
-        e.dna = "{}-{}-{}-{}".format(e.genus, e.race, e.sex, ("%s-%s-%s-%s-%s-%s" % tuple([e.attributes[a] for a in primitives['attribute_names']])))
+        e.dna = "{}-{}-{}-{}-{}-{}-{}-{}-{}".format(e.genus, e.race, e.sex, e.attr_str, e.attr_agi, e.attr_con, e.attr_int, e.attr_wis, e.attr_cha)
         return e
 
     def roll_attributes(self, roll=4, take=3):
+        return( sum(nlargest(self.dice.d6(roll), take)), sum(nlargest(self.dice.d6(roll), take)), sum(nlargest(self.dice.d6(roll), take)), sum(nlargest(self.dice.d6(roll), take)), sum(nlargest(self.dice.d6(roll), take)), sum(nlargest(self.dice.d6(roll), take)) )
+
 
         obj = {}
         for attribute in primitives['attribute_names']:
             rolls = self.dice.d6(roll)
-            largest = nlargest(rolls, take)
+            largest = sum(nlargest(rolls, take))
             obj[attribute] = sum(largest)
 
         return obj

@@ -29,14 +29,12 @@ class Mortal(Being):
         self.desire = False
         self.adult = False
 
-        self.attributes = {
-            "str": 0,
-            "dex": 0,
-            "con": 0,
-            "int": 0,
-            "wis": 0,
-            "cha": 0
-        }
+        self.attr_str = 10
+        self.attr_agi = 10
+        self.attr_con = 10
+        self.attr_int = 10
+        self.attr_wis = 10
+        self.attr_cha = 10
 
 
 class Animal(Mortal):

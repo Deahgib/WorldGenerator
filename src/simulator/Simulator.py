@@ -7,33 +7,48 @@ import gc
 from src.simulator.SimulationRenderer import *
 
 class Simulator:
-    def __init__(self, state):
+    def __init__(self, state, simulation_years):
         self.state = state
-
+        self.simulation_years = simulation_years
         self.birth_rate = 0
         self.death_rate = 0
         self.pool = ThreadPool(THREAD_POOLS)
-        self.renderer = SimuulationRrenderer()
+        #self.renderer = SimuulationRrenderer()
 
-    def age(self, simulation_years):
-        self.renderer.setup(self.state)
+    def run_year(self):
+        self.yearly_births = set()
+        self.yearly_deaths = set()
+        for m in calendar['months']:
+            try:
+                self.run_month()
+            except AllHumanoidsDied:
+                raise AllHumanoidsDied
+
+
+    def run_month(self):
+        self.simulate_month()
+        # self.renderer.update(self.state)
+        self.state.date.inc_month()
+        build_table(self.state.date, self.state.humanoids, self.state.gods, self.state.cities)
+        if len(self.state.humanoids) <= 0:
+            #print("__ALL HUMANOIDS DIED")
+            raise AllHumanoidsDied
+
+
+    def age(self):
+        #self.renderer.setup(self.state)
         self.yearly_population = 0
-        for y in range(simulation_years):
+        for y in range(self.simulation_years):
             self.yearly_births = set()
             self.yearly_deaths = set()
-            for m in calendar['months']:
-                self.simulate_month()
-                self.renderer.update(self.state)
-                self.state.date.inc_month()
-
-                if len(self.state.humanoids) <= 0:
-                    print("__ALL HUMANOIDS DIED")
-                    return
-
-
-            #build_table(self.state.date.month, self.state.date.year, self.state.humanoids, self.state.gods, self.state.cities)
-
+            try:
+                self.run_year()
+            except AllHumanoidsDied:
+                print("__ All Humanoids Died !")
+                gc.collect()
+                return
             gc.collect()
+            yield
 
 
 

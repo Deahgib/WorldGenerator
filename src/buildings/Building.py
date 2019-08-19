@@ -5,6 +5,11 @@ class Building(Entity):
         Entity.__init__(self)
         self.cost = 0
 
+class House(Building):
+    def __int__(self):
+        Building.__init__(self)
+        self.cost = 50
+
 class Farm(Building):
     def __init__(self):
         Building.__init__(self)

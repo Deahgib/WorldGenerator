@@ -7,32 +7,34 @@ from src.Utils import *
 class SimuulationRrenderer:
 
 
-    def __init__(self):
+    def __init__(self, simulator):
+        pygame.init()
         self.win = pygame.display.set_mode((1000, 1000))
+        pygame.display.set_caption("Territories")
+        self.simulator = simulator
+        self.state = simulator.state
 
     def __del__(self):
         pygame.quit()
 
-    def setup(self, state):
-        pygame.display.set_caption("Territories")
 
-    def update(self, state):
+    def update(self):
         pygame.time.delay(100)
         pygame.event.get()
         win_w, win_h = pygame.display.get_surface().get_size()
-        height = math.floor(win_h / state.world_gen.map_height)
-        width = math.floor(win_w / state.world_gen.map_width)
-        for y in range(state.world_gen.map_width):
+        height = math.floor(win_h / self.state.world_gen.map_height)
+        width = math.floor(win_w / self.state.world_gen.map_width)
+        for y in range(self.state.world_gen.map_width):
             off_y = y * height
-            for x in range(state.world_gen.map_width):
+            for x in range(self.state.world_gen.map_width):
                 off_x = x * width
-                colour = self.get_territory_colour(state, x, y)
+                colour = self.get_territory_colour(self.state, x, y)
                 pygame.draw.rect(self.win, colour, ( off_x, off_y, width, height ))
 
-                city = [c for c in state.cities if c.location == (x, y)]
+                city = [c for c in self.state.cities if c.location == (x, y)]
                 if city is not None and len(city) > 0:
                     for c in city:
-                        city_colour = self.get_city_colour(state, c)
+                        city_colour = self.get_city_colour(self.state, c)
                         pygame.draw.circle(self.win, city_colour, ((off_x + math.floor(width/2)), (off_y + math.floor(height/2))), math.floor(width / 2) )
                         if not c.ruin:
                             race_colour = self.get_race_colour(c.race)
