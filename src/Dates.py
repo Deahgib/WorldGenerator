@@ -15,8 +15,10 @@ class Date:
         if self.month_num >= len(calendar['months']):
             self.month_num = 0
 
-            log_event(self, "New Years Eve")
-            print("New Years Eve {}".format(self.year))
+            if ENABLE_LOG:
+                log_event(self, "New Years Eve")
+            if ENABLE_CONSOLE:
+                print("New Years Eve {}".format(self.year))
             self.year += 1
 
         self.month = calendar['months'][self.month_num]

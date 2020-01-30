@@ -9,7 +9,7 @@ class SimuulationRrenderer:
 
     def __init__(self, simulator):
         pygame.init()
-        self.win = pygame.display.set_mode((1000, 1000))
+        self.win = pygame.display.set_mode((750, 750))
         pygame.display.set_caption("Territories")
         self.simulator = simulator
         self.state = simulator.state
@@ -58,7 +58,7 @@ class SimuulationRrenderer:
         if city.population <= 0 or len(state.humanoids) <= 0:
             return (0, 0, 0)
 
-        if city.population * HUMANOID_CONSUMES < city.food:
+        if city.population * HUMANOID_CONSUMES * 4 < city.food:
             return (255, 0, 0)
 
         if city.population * HUMANOID_CONSUMES * 4 > city.food:
@@ -77,6 +77,8 @@ class SimuulationRrenderer:
             "wilderness": (67, 181, 41),
             "forest": (49, 109, 59),
             "crops": (188, 206, 53),
+            "mountain": (112, 102, 101),
+            "sand": (245, 233, 64),
             "sea": (10, 126, 214)
         }
         return colour_map[state.world_gen.map[y * state.world_gen.map_width + x].type]

@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import shutil
-from names import NameGenerator
+from src.NameGenerator import NameGenerator
 from src.RandomRoll import Dice
 import math
 import logging
@@ -9,6 +9,8 @@ import threading
 lock = threading.Lock()
 
 ENABLE_LOG = True
+ENABLE_CONSOLE = False
+ENABLE_UI = True
 
 THREAD_POOLS = 32
 
@@ -21,7 +23,7 @@ class AllHumanoidsDied(Exception):
    pass
 
 primitives = {
-    'territories': ['sea', 'wilderness','forest', 'crops'],
+    'territories': ['sea', 'wilderness','forest', 'crops', "sand", "mountain"],
     'divine_attributes': ['harvest', 'war', 'thunder', 'lore', 'harmony', 'time', 'fertility', 'chaos', 'magic', 'hunt', 'necromancy'],
     'attribute_names': ["str", "dex", "con", "int", "wis", "cha"],
 
@@ -60,7 +62,7 @@ primitives = {
     'geni': ["humanoid"]
 }
 
-names = NameGenerator(primitives['races']['humanoid'], ["male", "female"])
+names = NameGenerator()
 dice = Dice()
 
 
@@ -143,6 +145,10 @@ def build_table(date, hum, god, cit, include_datestamp = True):
     # hdf.to_csv('history/century{}/year{}-{}.csv'.format(century, date.year, date.month))
 
     hdf.to_csv('history/{}-{} ({}).csv'.format(date.year, date.month_num, date.month), index_label=False)
+
+
+def get_modifier(attribute):
+    return math.floor((attribute - 10) / 2)
 
 def food_cost(population):
     return population * HUMANOID_CONSUMES

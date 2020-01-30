@@ -24,6 +24,7 @@ class Humanoid(Mortal):
         self.happiness = 0
         self.beliefs_graph = {}
         self.desires_graph = {}
+        self.is_blessed = False
 
     def is_alive(self):
         return self.health > 0
@@ -84,6 +85,7 @@ class Humanoid(Mortal):
 
         #desire = random.random()
         percepts = self.percepts(state)
+        self.is_blessed = self.favorite_god.seek_blessing(self)
         self.beliefs_graph = self.beliefs(state, percepts)
         self.desires_graph = self.desires(state, percepts)
         local, friends, jobs = percepts
@@ -93,10 +95,10 @@ class Humanoid(Mortal):
         if self.health > 0:
             if self.home.food > 0:
                 self.home.food -= HUMANOID_CONSUMES
-                self.health = min(self.health + 0.2, 1.0)
+                self.health = min(self.health + 2, self.max_health)
             else:
                 #print("{} is starving!".format(self.name))
-                self.health = max(self.health - 0.5, 0.0)
+                self.health = max(self.health - 2, 0.0)
 
             if self.adult:
                 if self.desires_graph['violent']:
@@ -104,10 +106,10 @@ class Humanoid(Mortal):
                     # TODO Attack a closeby humanoid
                     self.temperament += max(min(self.temperament + 0.2, 1.0), -1.0)
                     victim = random.choice(local)
-                    victim.health -= 0.3
+                    victim.health -= 3
                     victim.temperament = max(min(victim.temperament - 0.1, 1.0), -1.0)
                     #print('{} attacked {}'.format(humanoid.name, victim.name))
-                    #if victim.health <= 0.1:
+                    #if victim.health <= 1:
                         #print('{} killed {}'.format(humanoid.name, victim.name))
                 else:
                     # Do Love
@@ -144,7 +146,6 @@ class Humanoid(Mortal):
         if self.age >= (oldest):
             if random.random() < 0.1:
                 self.health = 0
-                state.kill_humanoid(self)
                 return
                 #print("{} is taken by old age".format(humanoid.name))
 
@@ -161,7 +162,8 @@ class Humanoid(Mortal):
             dna.append(f if dice.d2() == 1 else m)
         baby.dna = ('%s-%s-%s-%s-%s-%s-%s-%s-%s' % tuple(dna))
 
-        genus, race, sex, str, dex, con, int, wis, cha = tuple(dna)
+        genus, race, sex, stre, dex, con, inte, wis, cha = tuple(dna)
+        baby.armour_class = 14 + random.randint(-4, 4)
         baby.location = mother.location
         baby.home = mother.home
         baby.genus = genus
@@ -170,13 +172,13 @@ class Humanoid(Mortal):
         baby.sex = sex
         baby.adult = False
         baby.month_of_birth = state.date.month
-        baby.attr_str = str
-        baby.attr_agi = dex
-        baby.attr_con = con
-        baby.attr_int = int
-        baby.attr_wis = wis
-        baby.attr_cha = cha
-        baby.fname = names.get_first_name(race='human', gender=baby.sex)
+        baby.attr_str = int(stre)
+        baby.attr_agi = int(dex)
+        baby.attr_con = int(con)
+        baby.attr_int = int(inte)
+        baby.attr_wis = int(wis)
+        baby.attr_cha = int(cha)
+        baby.fname = names.get_first_name(gender=baby.sex)
         baby.lname = mother.lname
         baby.name = baby.fname + " " + baby.lname
         baby.favorite_god = random.choice([g for g in state.gods if baby.race in g.worshiped_by])
@@ -185,7 +187,8 @@ class Humanoid(Mortal):
         baby.goodness = max(min(random.gauss(baby.favorite_god.goodness, 0.2), 1.0), -1.0)
         baby.lawful = max(min(random.gauss(0.0, 0.5), 1.0), -1.0)
         baby.temperament = max(min(random.gauss(0.0, 0.1), 1.0), -1.0)
-        baby.health = 1
+        baby.max_health = 10 + random.randint(0, 10)
+        baby.health = math.ceil(baby.max_health / 2)
 
         # print("The {} {}, is born to mother {} and father {}".format(baby.race, baby.name, mother.name, father.name))
         state.births.add(baby)

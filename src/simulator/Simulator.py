@@ -55,8 +55,9 @@ class Simulator:
     def simulate_month(self):
         self.pool.map(lambda c: c.actions(self.state), self.state.cities)
         self.pool.map(lambda h: h.actions(self.state), self.state.humanoids)
+        self.pool.map(lambda e: e.run_encounter(), self.state.encounters)
         self.state.end_frame(self.pool)
-
+        print("{} Humanoids roam the world.".format(len(self.state.humanoids)))
 
 
 

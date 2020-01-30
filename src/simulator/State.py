@@ -1,14 +1,18 @@
 from src.Dates import Date
+from src.EncounterEvaluator import EncounterEvaluator
+
 
 class State:
     def __init__(self, map, humanoids, cities, gods):
         """ Named arguments, map, humanoids, cities, gods """
         self.world_gen = None
         self.humanoids = set()
+        self.factions = set()
         self.cities = set()
         self.gods = set()
         self.deaths = set()
         self.births = set()
+        self.encounters = list()
         self.date = Date()
         self.population_count = 0
         self.force_state(map=map, humanoids=humanoids, cities=cities, gods=gods)
@@ -22,6 +26,10 @@ class State:
             self.cities = set(kwargs['cities'])
         if kwargs['gods'] is not None:
             self.gods = set(kwargs['gods'])
+
+    def add_battle(self, encounter):
+        if isinstance(encounter, EncounterEvaluator):
+            self.encounters.append(encounter)
 
     def get_local(self, humanoid):
         population = [r for r in self.humanoids if r.location == humanoid.location ]
@@ -40,3 +48,4 @@ class State:
 
         self.deaths = set()
         self.births = set()
+        self.encounters = list()

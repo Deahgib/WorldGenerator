@@ -2,12 +2,35 @@
 class Entity:
     def __init__(self):
         self.name = ""
-        self.location = (0, 0)
 
 
-class Being(Entity):
+class Faction(Entity):
     def __init__(self):
         Entity.__init__(self)
+        self.members = []
+
+    def remove_member(self, member):
+        if member in self.members:
+            self.members.remove(member)
+
+    def add_member(self, member):
+        if member not in self.members:
+            self.members.append(member)
+
+class Physical(Entity):
+    def __init__(self):
+        Entity.__init__(self)
+        self.location = (0, 0)
+
+class Group(Physical):
+    def __init__(self):
+        Physical.__init__(self)
+        self.faction = None
+
+
+class Being(Physical):
+    def __init__(self):
+        Physical.__init__(self)
         self.mortal = True
         self.goodness = 0
 
@@ -23,12 +46,15 @@ class Mortal(Being):
         self.age = 0
 
         self.home = None
-        self.health = 1
+        self.max_health = 10
+        self.health = 10
         self.temperament = 0
 
         self.desire = False
         self.adult = False
 
+
+        self.armour_class = 10
         self.attr_str = 10
         self.attr_agi = 10
         self.attr_con = 10
@@ -47,9 +73,4 @@ class Imortal(Being):
         self.mortal = False
         self.power = 0
 
-class God(Imortal):
-    def __init__(self):
-        Imortal.__init__(self)
-        self.id = self
-        self.divine_attributes = set()
-        self.worshiped_by = set()
+

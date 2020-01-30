@@ -7,7 +7,7 @@ from src.simulator.SimulationRenderer import *
 import time
 
 
-AGE = 100
+AGE = 30
 #random.seed('a')
 if __name__ == "__main__":
     purge_tables()
@@ -15,15 +15,18 @@ if __name__ == "__main__":
 
     worldgen = Generator()
     print('Generating world')
-    state = worldgen.generate((30, 30))
+    state = worldgen.generate((50, 50))
 
     start = time.time()
     simulator = Simulator(state, AGE)
-    renderer = SimuulationRrenderer(simulator)
+    if ENABLE_UI:
+        renderer = SimuulationRrenderer(simulator)
 
     for i in range(AGE):
         next(simulator.age())
-        renderer.update()
+
+        if ENABLE_UI:
+            renderer.update()
 
     end = time.time()
     print("____SIMULATION OVER____ Took {} seconds - Lasted {} months and {} years".format(end - start, simulator.state.date.year * len(calendar['months']), simulator.state.date.year))

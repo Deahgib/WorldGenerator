@@ -1,10 +1,10 @@
 from src.Entities.City import City
 from src.Entities.Entities import *
 from src.Entities.Humanoid import Humanoid
+from src.Entities.God import God
 from src.Utils import *
 import random
 from src.Dates import *
-from names import NameGenerator
 from multiprocessing.dummy import Pool as ThreadPool
 from src.simulator.State import State
 
@@ -13,6 +13,8 @@ import time
 import math
 
 from randomwordgenerator import randomwordgenerator as rword
+
+from src.terrain.TerrainPrioritiser import generate_tile
 
 
 class WorldGen:
@@ -27,15 +29,16 @@ class WorldGen:
         self.map = []
         for y in range(self.map_height):
             for x in range(self.map_width):
-                self.map.append(self.gen_territory())
+                self.map.append(self.gen_territory(x, y))
 
-    def gen_territory(self):
-        t = Territory()
-        t.type = random.choice(primitives['territories'])
+    def gen_territory(self, x, y):
+        t = Territory(x, y)
+        t.type = generate_tile(x, y)
         return t
 
 class Territory():
-    def __init__(self):
+    def __init__(self, x, y):
+        self.location = (x, y)
         self.type = primitives['territories'][0]
 
 class Generator:
@@ -45,7 +48,6 @@ class Generator:
         self.humanoids = set()
         self.cities = set()
         self.world_gen = WorldGen()
-        self.names = NameGenerator(primitives['races']['humanoid'], ['male', 'female'])
 
     def generate(self, size=(25,25)):
         self.pool = ThreadPool(THREAD_POOLS)
@@ -124,19 +126,25 @@ class Generator:
         city.population = random.randint(20, 60)
         city.food = food_cost(city.population) * 2
         city.wealth = city.population
-        city.location = (random.randint(0,self.world_gen.map_width), random.randint(0,self.world_gen.map_height))
         city.name = rword.generate_random_words(1).capitalize()
         city.race = random.choice(primitives['races']["humanoid"])
         god = random.choice(list(self.gods))
         god.worshiped_by.add(city.race)
         city.patron_god = god
         city.patron_god_attributes = god.divine_attributes
+
+        possible_locations = [tile for tile in self.world_gen.map if tile.type != "sea"]
+        city.location = random.choice(possible_locations).location
+        #city.location = (random.randint(0,self.world_gen.map_width), random.randint(0,self.world_gen.map_height))
+
+
+
         return city
 
     def gen_god(self):
         god = God()
         god.location = (random.randint(0,self.world_gen.map_width), random.randint(0,self.world_gen.map_height))
-        god.name = self.names.get_last_name(race= 'human')
+        god.name = names.get_last_name()
         god.power = random.randint(21, 100)
         god.divine_attributes = random.sample(primitives['divine_attributes'], random.randint(int(len(primitives['divine_attributes'])/4), int(len(primitives['divine_attributes'])/2)))
         god.goodness = random.uniform(-1, 1)
@@ -147,16 +155,18 @@ class Generator:
         e.location = (random.randint(0, self.world_gen.map_width), random.randint(0, self.world_gen.map_height)) if location is None else location
         e.home = e.location
         e.home_name = (c.name for c in self.cities)
-        e.health = 1
+        e.max_health = 10 + random.randint(0, 10)
+        e.health = e.max_health
         e.genus = random.choice(primitives['geni'])
         e.race = random.choice(primitives['races'][e.genus]) if race is None else race
         e.age = random.randint(0, primitives['attributes'][e.race]['oldest'])
         e.sex = 'male' if self.dice.d2() == 1 else 'female'
         e.adult = e.age >= primitives['attributes'][e.race]['adult']
         e.month_of_birth = calendar['months'][random.randint(0, len(calendar['months'])-1)]
+        e.armour_class = 14 + random.randint(-3, 3)
         e.attr_str, e.attr_agi, e.attr_con, e.attr_int, e.attr_wis, e.attr_cha = self.roll_attributes(primitives['attributes'][e.race]['roll'], primitives['attributes'][e.race]['take'])
-        e.fname = self.names.get_first_name(race='human' ,gender=e.sex)
-        e.lname = self.names.get_last_name(race= 'human')
+        e.fname = names.get_first_name(gender=e.sex)
+        e.lname = names.get_last_name()
         e.name = e.fname + " " + e.lname
         e.favorite_job = random.choice(primitives["jobs"])
         e.favorite_god = random.choice([g for g in self.gods if e.race in g.worshiped_by])
