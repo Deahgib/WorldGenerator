@@ -146,6 +146,20 @@ def build_table(date, hum, god, cit, include_datestamp = True):
 
     hdf.to_csv('history/{}-{} ({}).csv'.format(date.year, date.month_num, date.month), index_label=False)
 
+def get_closest(entity, entities):
+    closest = None
+    dist = 999999
+
+    s_x, s_y = entity.location
+
+    for e in entities:
+        e_x, e_y = e.location
+        chk_dist = math.sqrt(math.pow(e_x - s_x, 2) + math.pow(e_y - s_y, 2))
+        if chk_dist < dist:
+            closest = e
+            dist = chk_dist
+
+    return (closest, dist)
 
 def get_modifier(attribute):
     return math.floor((attribute - 10) / 2)

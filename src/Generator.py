@@ -123,7 +123,7 @@ class Generator:
 
     def gen_city(self, pop_mod):
         city = City()
-        city.population = random.randint(20, 60)
+        city.population = random.randint(10, 50)
         city.food = food_cost(city.population) * 2
         city.wealth = city.population
         city.name = rword.generate_random_words(1).capitalize()
@@ -152,8 +152,8 @@ class Generator:
 
     def gen_humanoid(self, race = None, location = None):
         e = Humanoid()
-        e.location = (random.randint(0, self.world_gen.map_width), random.randint(0, self.world_gen.map_height)) if location is None else location
-        e.home = e.location
+        e.location = (random.randint(0, self.world_gen.map_width), random.randint(0, self.world_gen.map_height)) if location is None else location.location
+        e.home = location
         e.home_name = (c.name for c in self.cities)
         e.max_health = 10 + random.randint(0, 10)
         e.health = e.max_health

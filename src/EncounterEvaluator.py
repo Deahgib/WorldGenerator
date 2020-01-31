@@ -2,13 +2,12 @@ from src.RandomRoll import Dice
 from src.Utils import *
 
 class EncounterEvaluator:
-    def __init__(self, state, attacker_city, defender_city, attackers, defenders):
+    def __init__(self, state, attacker_city, defender_city):
         self.state = state
-        self.attacker = attacker_city
-        self.defender = defender_city
-        self.attackers = list(attackers)
-        self.defenders = list(defenders)
+        self.attacker_group = attacker_city
+        self.defender_group = defender_city
         self.combat_state = "calm before the storm"
+        self.tot_casualties = 0
 
     def get_next_fighter(self, fighter, fighters):
         if fighter == None or fighter.health <= 0:
@@ -21,8 +20,8 @@ class EncounterEvaluator:
 
     def run_encounter(self):
         self.combat_state = "fighting"
-        attackers = list(self.attackers)
-        defenders = list(self.defenders)
+        attackers = list(self.attacker_group.millitary)
+        defenders = list(self.defender_group.millitary)
 
         if len(defenders) > 0 and len(attackers) > 0:
             attacker = attackers.pop() if len(attackers) > 0 else None
@@ -39,46 +38,89 @@ class EncounterEvaluator:
                 self.combat_action(defender, attacker)
 
 
-            tot_casualties = (len(self.attackers) - len(attackers)) + (len(self.defenders) - len(defenders))
+            self.tot_casualties = (len(self.attacker_group.millitary) - len(attackers)) + (len(self.defender_group.millitary) - len(defenders))
 
             if len(attackers) <= 0:
                 self.combat_state = "defeat"
-                if ENABLE_CONSOLE:
-                    print("The city of {} ({}) is DEFEATED in battle against the city of {} ({})!".format(self.attacker.name, self.attacker.race, self.defender.name, self.defender.race))
-                if ENABLE_LOG:
-                    log_event(self.state.date,
-                              "The city of {} ({}) is DEFEATED in battle against the city of {} ({})!".format(self.attacker.name, self.attacker.race, self.defender.name, self.defender.race))
 
             else:
                 self.combat_state = "victory"
                 max_wealth_carry = len(attackers) * 10
                 max_food_carry = len(attackers) * 5
-                if self.defender.wealth > max_wealth_carry:
-                    self.defender.wealth -= max_wealth_carry
-                    self.attacker.wealth += max_wealth_carry
+                if self.defender_group.wealth > max_wealth_carry:
+                    self.defender_group.wealth -= max_wealth_carry
+                    self.attacker_group.wealth += max_wealth_carry
                 else:
-                    self.attacker.wealth += self.defender.wealth
-                    self.defender.wealth = 0
+                    self.attacker_group.wealth += self.defender_group.wealth
+                    self.defender_group.wealth = 0
 
-                if self.defender.food > max_food_carry:
-                    self.defender.food -= max_food_carry
-                    self.attacker.food += max_food_carry
+                if self.defender_group.food > max_food_carry:
+                    self.defender_group.food -= max_food_carry
+                    self.attacker_group.food += max_food_carry
                 else:
-                    self.attacker.food += self.defender.food
-                    self.defender.food = 0
+                    self.attacker_group.food += self.defender_group.food
+                    self.defender_group.food = 0
+        else:
 
-                if ENABLE_CONSOLE:
-                    print("The city of {} ({}) is VICTORIOUS in battle against the city of {} ({})!".format(self.attacker.name, self.attacker.race, self.defender.name, self.defender.race))
-                if ENABLE_LOG:
-                    log_event(self.state.date,
-                              "The city of {} ({}) is VICTORIOUS in battle against the city of {} ({})!".format(self.attacker.name, self.attacker.race, self.defender.name, self.defender.race))
+            self.combat_state = "pillage"
+            max_wealth_carry = len(attackers) * 10
+            max_food_carry = len(attackers) * 5
+            if self.defender_group.wealth > max_wealth_carry:
+                self.defender_group.wealth -= max_wealth_carry
+                self.attacker_group.wealth += max_wealth_carry
+            else:
+                self.attacker_group.wealth += self.defender_group.wealth
+                self.defender_group.wealth = 0
+
+            if self.defender_group.food > max_food_carry:
+                self.defender_group.food -= max_food_carry
+                self.attacker_group.food += max_food_carry
+            else:
+                self.attacker_group.food += self.defender_group.food
+                self.defender_group.food = 0
+
+        self.log_encounter()
+
+    def log_encounter(self):
+        if self.combat_state == "pillage":
+            if ENABLE_CONSOLE:
+                print("The city of {} ({}) PILLAGED the city of {} ({})!".format(
+                    self.attacker_group.name, self.attacker_group.race, self.defender_group.name,
+                    self.defender_group.race))
+            if ENABLE_LOG:
+                log_event(self.state.date,
+                          "The city of {} ({}) PILLAGED the city of {} ({})!".format(
+                              self.attacker_group.name, self.attacker_group.race, self.defender_group.name,
+                              self.defender_group.race))
+
+
+        elif self.combat_state == "victory":
+            if ENABLE_CONSOLE:
+                print("The city of {} ({}) is VICTORIOUS in battle against the city of {} ({}) - {} total casualties!".format(
+                    self.attacker_group.name, self.attacker_group.race, self.defender_group.name,
+                    self.defender_group.race, self.tot_casualties))
+            if ENABLE_LOG:
+                log_event(self.state.date,
+                          "The city of {} ({}) is VICTORIOUS in battle against the city of {} ({}) - {} total casualties!".format(
+                              self.attacker_group.name, self.attacker_group.race, self.defender_group.name,
+                              self.defender_group.race, self.tot_casualties))
+        elif self.combat_state == "defeat":
+            if ENABLE_CONSOLE:
+                print("The city of {} ({}) is DEFEATED in battle against the city of {} ({}) - {} total casualties!".format(
+                    self.attacker_group.name, self.attacker_group.race, self.defender_group.name,
+                    self.defender_group.race, self.tot_casualties))
+            if ENABLE_LOG:
+                log_event(self.state.date,
+                          "The city of {} ({}) is DEFEATED in battle against the city of {} ({}) - {} total casualties!".format(
+                              self.attacker_group.name, self.attacker_group.race, self.defender_group.name,
+                              self.defender_group.race, self.tot_casualties))
 
     def combat_action(self, attacker, defender):
         if attacker != None and defender != None:
             dice = Dice()
             proficiency = get_modifier(attacker.attr_str)
             proficiency += 4 if attacker.desires_graph["violent"] else 2
-            roll_bonus = 1 if self.attacker.is_blessed else 0
+            roll_bonus = 1 if self.attacker_group.is_blessed else 0
             roll_bonus += 2 if attacker.is_blessed else 0
 
             if dice.d20() + proficiency + roll_bonus > defender.armour_class: # Is Hit ?

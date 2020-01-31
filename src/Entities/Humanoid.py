@@ -32,7 +32,8 @@ class Humanoid(Mortal):
     def do_job(self):
         # Do work
         if self.home.work.__len__() > 0:
-            if self.favorite_job in self.home.work.keys():
+            job = ""
+            if self.favorite_job in self.home.work.keys() and self.home.work[self.favorite_job] > 0:
                 job = self.favorite_job
                 self.temperament = max(min(self.temperament + 0.1, 1.0), -1.0)
             else:
@@ -85,10 +86,12 @@ class Humanoid(Mortal):
 
         #desire = random.random()
         percepts = self.percepts(state)
-        self.is_blessed = self.favorite_god.seek_blessing(self)
         self.beliefs_graph = self.beliefs(state, percepts)
         self.desires_graph = self.desires(state, percepts)
         local, friends, jobs = percepts
+
+        if self.beliefs_graph["worship"]:
+            self.is_blessed = self.favorite_god.seek_blessing(self)
 
         #yield
 
@@ -99,6 +102,13 @@ class Humanoid(Mortal):
             else:
                 #print("{} is starving!".format(self.name))
                 self.health = max(self.health - 2, 0.0)
+                # migrate?
+                if self.health < self.max_health / 3:
+                    cities = [city for city in list(state.cities) if city.id != self.home.id]
+                    destination_city, dist = get_closest(self, cities)
+                    self.home = destination_city
+                    self.location = destination_city.location
+                    print("{} has emigrated to {}".format(self.name, self.home.name))
 
             if self.adult:
                 if self.desires_graph['violent']:
@@ -116,7 +126,7 @@ class Humanoid(Mortal):
                     if self.beliefs_graph['people'] and self.desires_graph['procreate']:
                         # print("{} wants a child".format(humanoid.name))
                         self.desire = True
-                        oposite_sex = [s for s in friends if s.sex != self.sex and s.desire]
+                        oposite_sex = [s for s in friends if s.sex != self.sex and s.desire and self.race == s.race]
                         if len(oposite_sex) > 0:
                             partner = random.choice(oposite_sex)
                             if partner.reciprocate_love():
