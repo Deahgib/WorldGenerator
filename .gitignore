@@ -10,3 +10,5 @@ history/
 *\.log
 
 logs/
+
+*.png

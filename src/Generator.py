@@ -14,16 +14,18 @@ import math
 
 from randomwordgenerator import randomwordgenerator as rword
 
-from src.terrain.TerrainPrioritiser import generate_tile
+from src.terrain.TerrainPrioritiser import Terrain
 
 
 class WorldGen:
     def __init__(self):
         self.map_height = 1
         self.map_width = 1
+        self.terrain = None
         self.map = []
 
     def gen_territories(self, w, h):
+        self.terrain = Terrain(w, h)
         self.map_height = w
         self.map_width = h
         self.map = []
@@ -33,7 +35,7 @@ class WorldGen:
 
     def gen_territory(self, x, y):
         t = Territory(x, y)
-        t.type = generate_tile(x, y)
+        t.type = self.terrain.generate_tile(x, y)
         return t
 
 class Territory():
@@ -80,6 +82,7 @@ class Generator:
 
         tot_cities = math.ceil( ideal_max + random.randint(-math.ceil(ideal_max * 0.2), math.ceil(ideal_max * 0.2) ) )
         tot_cities = 1 if tot_cities <= 0 else tot_cities
+        tot_cities = 10
         self.gen_cities(tot_cities)
         end = time.time()
         print("{} cities | Ideal max cities {} | Mod {} | ({} seconds)".format(len(self.cities), ideal_max, math.ceil(ideal_max * 0.2), end - start))

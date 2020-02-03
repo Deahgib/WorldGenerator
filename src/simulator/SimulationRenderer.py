@@ -9,7 +9,7 @@ class SimuulationRrenderer:
 
     def __init__(self, simulator):
         pygame.init()
-        self.win = pygame.display.set_mode((1250, 1250))
+        self.win = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
         pygame.display.set_caption("Territories")
         self.simulator = simulator
         self.state = simulator.state

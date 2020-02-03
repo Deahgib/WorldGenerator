@@ -6,8 +6,6 @@ from src.simulator.SimulationRenderer import *
 
 import time
 
-
-AGE = 100
 #random.seed('a')
 if __name__ == "__main__":
     purge_tables()
@@ -15,7 +13,7 @@ if __name__ == "__main__":
 
     worldgen = Generator()
     print('Generating world')
-    state = worldgen.generate((50, 50))
+    state = worldgen.generate((WORLD_SIZE, WORLD_SIZE))
 
     start = time.time()
     simulator = Simulator(state, AGE)
