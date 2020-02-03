@@ -8,9 +8,9 @@ import logging
 import threading
 lock = threading.Lock()
 
-AGE = 50
-WORLD_SIZE = 64
-SCREEN_SIZE = 512
+AGE = 250
+WORLD_SIZE = 128
+SCREEN_SIZE = 1024
 
 ENABLE_LOG = True
 ENABLE_CONSOLE = True

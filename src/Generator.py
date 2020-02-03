@@ -59,6 +59,7 @@ class Generator:
         avg = int(round(math.sqrt(x * y)))
         dampner = random.uniform(0, 1)
         nb_gods = min(math.ceil(random.randint(int(avg / 2), avg) * dampner), 5)
+        nb_gods = 3
         self.generate_gods(nb_gods)
         end = time.time()
         print("{} gods | ({} seconds)".format(len(self.gods), end - start))
