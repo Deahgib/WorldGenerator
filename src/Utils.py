@@ -9,15 +9,13 @@ import threading
 lock = threading.Lock()
 
 ENABLE_LOG = True
-ENABLE_CONSOLE = False
+ENABLE_CONSOLE = True
 ENABLE_UI = True
 
 THREAD_POOLS = 32
 
 HUMANOID_CONSUMES = 1
-HUMANOID_FARMS = 3
-HUMANOID_FORAGES = 2
-
+HUMANOID_FARMS = 2
 
 class AllHumanoidsDied(Exception):
    pass
@@ -149,17 +147,17 @@ def build_table(date, hum, god, cit, include_datestamp = True):
 def get_closest(entity, entities):
     closest = None
     dist = 999999
-
-    s_x, s_y = entity.location
-
     for e in entities:
-        e_x, e_y = e.location
-        chk_dist = math.sqrt(math.pow(e_x - s_x, 2) + math.pow(e_y - s_y, 2))
+        chk_dist = get_distance(entity, e)
         if chk_dist < dist:
             closest = e
             dist = chk_dist
 
     return (closest, dist)
+
+def get_distance(a, b):
+    return math.sqrt(math.pow(a.location[0] - b.location[0], 2) + math.pow(a.location[1] - b.location[1], 2))
+
 
 def get_modifier(attribute):
     return math.floor((attribute - 10) / 2)

@@ -34,9 +34,10 @@ class City(Group):
 
         # Feed the population
         fc = food_cost(self.population)
-        fed_people = self.food / HUMANOID_CONSUMES
-        unfed_people = self.population - fed_people
-        needed_food_workers = max(math.ceil(unfed_people) , 0)
+        fed_people = math.floor(self.food / HUMANOID_CONSUMES)
+        unfed_people = max(self.population - fed_people, 0)
+        needed_food_workers = math.ceil(self.population / HUMANOID_CONSUMES * 1.5)
+        available_workers = max(len(adults) - needed_food_workers, 0)
 
         obj = {
             "farm": needed_food_workers,
@@ -44,7 +45,6 @@ class City(Group):
             "millitary": 0
         }
 
-        available_workers = len(adults) - needed_food_workers
         if available_workers > 0:
             if self.wealth > math.floor(available_workers / 2):
                 obj["millitary"] = math.floor(available_workers / 2)
@@ -55,14 +55,17 @@ class City(Group):
             else:
                 obj["industry"] = available_workers
 
+        self.wealth -= obj["millitary"]
         self.work = obj
 
 
     def fall_to_ruin(self, state):
         self.ruin = True
-        #if ENABLE_LOG:
-        log_event(state.date, "The city of {} has fallen to ruin!".format(self.name))
-        #print("The city of {} has fallen to ruin!".format(self.name))
+        if ENABLE_LOG:
+            log_event(state.date, "The city of {} has fallen to ruin!".format(self.name))
+
+        if ENABLE_CONSOLE:
+            print("The city of {} has fallen to ruin!".format(self.name))
 
     def assign_millitary(self, adults):
         self.millitary = []
@@ -76,49 +79,82 @@ class City(Group):
         enemies = [enemy for enemy in state.cities if enemy.race != self.race]
         chosen_enemy, dist = get_closest(self, enemies)
 
-        cost_of_war = math.floor(dist*50)
-        if self.wealth > cost_of_war and self.wealth < chosen_enemy.wealth:
+        cost_of_war = math.ceil(dist*len(self.millitary))
+        if self.wealth >= cost_of_war:
             self.wealth -= cost_of_war
             encounter = EncounterEvaluator(state, self, chosen_enemy)
             state.add_battle(encounter)
 
-    def generate_settler_migrants(self, adults):
-        dice - Dice()
+    def generate_settler_migrants(self, state,  adults):
+        dice = Dice()
         number_of_settlers = dice.d20() + dice.d20() + 5
+        if len(adults) > number_of_settlers:
+            settlers = random.choices(adults, k=number_of_settlers)
+            city = self.found_new_city(state, settlers)
+            if city != None:
+                state.cities.add(city)
+                city.population = len(settlers)
+                if ENABLE_LOG:
+                    log_event(state.date, "The city of {} has been founded by {} settlers from {}!".format(city.name, number_of_settlers, self.name))
 
+                if ENABLE_CONSOLE:
+                    print("The city of {} has been founded by {} settlers from {}!".format(city.name, number_of_settlers, self.name))
 
-    def found_new_city(self):
+    def found_new_city(self, state, settlers):
         # Do city stuff
         city = City()
-        city.population = random.randint(10, 50)
-        city.food = food_cost(city.population) * 2
+        city.food = food_cost(len(settlers)) * 2
         city.wealth = city.population
         city.name = rword.generate_random_words(1).capitalize()
-        city.race = random.choice(primitives['races']["humanoid"])
-        god = random.choice(list(self.gods))
+        city.race = self.race
+        god = self.patron_god
         god.worshiped_by.add(city.race)
         city.patron_god = god
         city.patron_god_attributes = god.divine_attributes
 
-        possible_locations = [tile for tile in self.world_gen.map if tile.type != "sea"]
-        city.location = random.choice(possible_locations).location
+        possible_locations = [tile for tile in state.world_gen.map if tile.type != "sea" and get_distance(tile, self) <= 5]
+        if city.race == "dwarf":
+            possible_locations = [tile for tile in possible_locations if tile.type == "mountain"]
+        elif city.race == "elf":
+            possible_locations = [tile for tile in possible_locations if tile.type == "forest"]
+        elif city.race == "human" or city.race == "orc":
+            possible_locations = [tile for tile in possible_locations if tile.type == "forest" or tile.type == "sand" or tile.type == "wilderness"]
+        if len(possible_locations) > 0:
+            city.location = random.choice(possible_locations).location
+
+            for s in settlers:
+                s.home = city
+                s.location = city.location
+
+            return city
+
+        return None
 
     def actions(self, state):
         if not self.ruin:
             population = [h for h in state.humanoids if h.home == self]
             adults = [a for a in population if a.adult]
+            visiting_gods = [g for g in state.gods if g.location == self.location]
             self.population = len(population)
             if self.population <= 0:
                 self.fall_to_ruin(state)
                 return
 
-            self.is_blessed = self.patron_god.seek_blessing(self)
+
+
+            if len(visiting_gods)>0 and not self.is_blessed:
+                blessing = False
+                for g in visiting_gods:
+                    if g.seek_blessing(self):
+                        self.is_blessed = True
+            elif len(visiting_gods)<=0 and self.is_blessed:
+                self.is_blessed = False
 
             self.build_work(adults)
             self.assign_millitary(adults)
 
-            if not self.is_blessed and self.population > 100 and self.wealth < self.food:
-                self.generate_settler_migrants(adults)
+            if not self.is_blessed and self.population > 100 and self.wealth < self.population * 20:
+                self.generate_settler_migrants(state, adults)
 
             if self.wealth > self.food and len(self.millitary) > 0:
                 self.go_to_war(state)

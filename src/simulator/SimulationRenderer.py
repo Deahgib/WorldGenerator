@@ -9,7 +9,7 @@ class SimuulationRrenderer:
 
     def __init__(self, simulator):
         pygame.init()
-        self.win = pygame.display.set_mode((750, 750))
+        self.win = pygame.display.set_mode((1250, 1250))
         pygame.display.set_caption("Territories")
         self.simulator = simulator
         self.state = simulator.state
@@ -19,7 +19,7 @@ class SimuulationRrenderer:
 
 
     def update(self):
-        pygame.time.delay(100)
+        pygame.time.delay(10)
         pygame.event.get()
         win_w, win_h = pygame.display.get_surface().get_size()
         height = math.floor(win_h / self.state.world_gen.map_height)
@@ -38,7 +38,12 @@ class SimuulationRrenderer:
                         pygame.draw.circle(self.win, city_colour, ((off_x + math.floor(width/2)), (off_y + math.floor(height/2))), math.floor(width / 2) )
                         if not c.ruin:
                             race_colour = self.get_race_colour(c.race)
-                            pygame.draw.circle(self.win, race_colour, ((off_x + math.floor(width/2)), (off_y + math.floor(height/2))), math.floor(width / 4) )
+                            pygame.draw.circle(self.win, race_colour, ((off_x + math.floor(width/2)), (off_y + math.floor(height/2))), math.floor(width / 3) )
+
+                gods = [g for g in self.state.gods if g.location == (x, y)]
+                if gods is not None and len(gods) > 0:
+                    for g in gods:
+                        pygame.draw.circle(self.win, (255, 255, 255, 0.5), ((off_x + math.floor(width/2)), (off_y + math.floor(height/2))), math.floor(width / 5))
 
         pygame.display.update()
 
@@ -58,10 +63,10 @@ class SimuulationRrenderer:
         if city.population <= 0 or len(state.humanoids) <= 0:
             return (0, 0, 0)
 
-        if city.population * HUMANOID_CONSUMES * 4 < city.food:
+        if city.population * HUMANOID_CONSUMES > city.food:
             return (255, 0, 0)
 
-        if city.population * HUMANOID_CONSUMES * 4 > city.food:
+        if city.population * HUMANOID_CONSUMES < city.food:
             return (0, 255, 0)
 
         return (255, 255, 0)

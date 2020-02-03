@@ -7,7 +7,7 @@ from src.simulator.SimulationRenderer import *
 import time
 
 
-AGE = 30
+AGE = 100
 #random.seed('a')
 if __name__ == "__main__":
     purge_tables()
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     if ENABLE_UI:
         renderer = SimuulationRrenderer(simulator)
 
-    for i in range(AGE):
+    while not simulator.simulation_over:
         next(simulator.age())
 
         if ENABLE_UI:

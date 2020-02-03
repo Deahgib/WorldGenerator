@@ -56,7 +56,7 @@ class Generator:
         x, y = size
         avg = int(round(math.sqrt(x * y)))
         dampner = random.uniform(0, 1)
-        nb_gods = math.ceil(random.randint(int(avg / 2), avg) * dampner)
+        nb_gods = min(math.ceil(random.randint(int(avg / 2), avg) * dampner), 5)
         self.generate_gods(nb_gods)
         end = time.time()
         print("{} gods | ({} seconds)".format(len(self.gods), end - start))
@@ -133,7 +133,18 @@ class Generator:
         city.patron_god = god
         city.patron_god_attributes = god.divine_attributes
 
-        possible_locations = [tile for tile in self.world_gen.map if tile.type != "sea"]
+        possible_locations = []
+        _possible_locations = [tile for tile in self.world_gen.map if tile.type != "sea"]
+        if city.race == "dwarf":
+            possible_locations = [tile for tile in self.world_gen.map if tile.type == "mountain"]
+
+        elif city.race == "elf":
+            possible_locations = [tile for tile in self.world_gen.map if tile.type == "forest"]
+
+        elif city.race == "human" or city.race == "orc":
+            possible_locations = [tile for tile in self.world_gen.map if tile.type == "forest" or tile.type == "sand" or tile.type == "wilderness"]
+
+
         city.location = random.choice(possible_locations).location
         #city.location = (random.randint(0,self.world_gen.map_width), random.randint(0,self.world_gen.map_height))
 

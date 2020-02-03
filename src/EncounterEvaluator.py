@@ -42,9 +42,12 @@ class EncounterEvaluator:
 
             if len(attackers) <= 0:
                 self.combat_state = "defeat"
-
+                self.modify_cities_temperament(self.attacker_group, -0.2)
+                self.modify_cities_temperament(self.defender_group, 0.2)
             else:
                 self.combat_state = "victory"
+                self.modify_cities_temperament(self.defender_group, -0.2)
+                self.modify_cities_temperament(self.attacker_group, 0.2)
                 max_wealth_carry = len(attackers) * 10
                 max_food_carry = len(attackers) * 5
                 if self.defender_group.wealth > max_wealth_carry:
@@ -63,6 +66,8 @@ class EncounterEvaluator:
         else:
 
             self.combat_state = "pillage"
+            self.modify_cities_temperament(self.defender_group, -0.2)
+            self.modify_cities_temperament(self.attacker_group, 0.2)
             max_wealth_carry = len(attackers) * 10
             max_food_carry = len(attackers) * 5
             if self.defender_group.wealth > max_wealth_carry:
@@ -80,6 +85,11 @@ class EncounterEvaluator:
                 self.defender_group.food = 0
 
         self.log_encounter()
+
+    def modify_cities_temperament(self, city, modifier=-0.3):
+        citizens = [c for c in self.state.humanoids if c.home == city]
+        for citizen in citizens:
+            citizen.temperament = min(max(citizen.temperament + modifier, -1.0), 1.0)
 
     def log_encounter(self):
         if self.combat_state == "pillage":

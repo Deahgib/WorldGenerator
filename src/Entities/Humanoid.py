@@ -38,17 +38,17 @@ class Humanoid(Mortal):
                 self.temperament = max(min(self.temperament + 0.1, 1.0), -1.0)
             else:
                 if self.home.work["farm"] > 0:
-                    job = "farm"
                     self.home.work["farm"] -= 1
+                    job = "farm"
                 elif self.home.work["industry"] > 0:
-                    job = "industry"
                     self.home.work["industry"] -= 1
+                    job = "industry"
 
             # print("{} has job {}".format(humanoid.name, job))
             if job == "farm":
-                self.home.food += HUMANOID_FARMS
+                self.home.food += HUMANOID_FARMS * 2 if self.is_blessed else HUMANOID_FARMS
             elif job == "industry":
-                self.home.wealth += 1
+                self.home.wealth += 2 if self.is_blessed else 1
 
             self.temperament = max(min(self.temperament + 0.1, 1.0), -1.0)
 
@@ -103,12 +103,12 @@ class Humanoid(Mortal):
                 #print("{} is starving!".format(self.name))
                 self.health = max(self.health - 2, 0.0)
                 # migrate?
-                if self.health < self.max_health / 3:
+                if self.health < self.max_health / 3 or self.home.wealth <= self.home.population:
                     cities = [city for city in list(state.cities) if city.id != self.home.id]
                     destination_city, dist = get_closest(self, cities)
                     self.home = destination_city
                     self.location = destination_city.location
-                    print("{} has emigrated to {}".format(self.name, self.home.name))
+                    #print("{} has emigrated to {}".format(self.name, self.home.name))
 
             if self.adult:
                 if self.desires_graph['violent']:
