@@ -112,7 +112,8 @@ class City(Group):
         city.patron_god = god
         city.patron_god_attributes = god.divine_attributes
 
-        possible_locations = [tile for tile in state.world_gen.map if tile.type != "sea" and get_distance(tile, self) <= 5]
+        city_locations = [city.location for city in state.cities if not city.ruin]
+        possible_locations = [tile for tile in state.world_gen.map if tile.type != "sea" and get_distance(tile, self) <= 5 and tile.location not in city_locations]
         if city.race == "dwarf":
             possible_locations = [tile for tile in possible_locations if tile.type == "mountain"]
         elif city.race == "elf":
