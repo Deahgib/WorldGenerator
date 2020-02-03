@@ -3,20 +3,8 @@ from noise import pnoise2, snoise2
 from src.Utils import primitives
 import random, math
 
-terrain_thresholds = {
-    "sea": 0.2,
-    "beach": 0.3,
-    "grassland": 0.5,
-    "forest": 0.7,
-    "mountain": 1.0
-}
-
-
 x_offset = random.randint(-10000, 10000)
 y_offset = random.randint(-10000, 10000)
-
-
-square_gradient = []
 
 class Terrain:
     def __init__(self, width, height):
@@ -31,10 +19,10 @@ class Terrain:
         self.sea_octaves = math.floor( math.log2(height) * math.log2(height) )
         self.sea_freq = 4.0 * self.height_octaves
 
-        self.square_gradient = self.normalise_map(self.generate_square_gradient(width, height))
+        self.square_gradient = self.generate_square_gradient(width, height)
         self.height_map = self.normalise_map(self.generate_height_map(width, height))
         self.moisture_map = self.normalise_map(self.generate_moisture_map(width, height))
-        self.sea_map = self.normalise_map(self.generate_sea_map(width, height))
+        self.sea_map = self.generate_sea_map(width, height)
         self.island = self.normalise_map(self.subtract_map(self.height_map, self.square_gradient))
         self.island = self.normalise_map(self.subtract_map(self.island, self.sea_map))
 
@@ -100,9 +88,9 @@ class Terrain:
     def generate_tile(self, x, y):
         humidity = self.moisture_map[x][y]
         height = self.island[x][y]
-        if height < 0.1:
+        if height < 0.01:
             return "sea"
-        elif height > 0.5:
+        elif height > 0.7:
             return "mountain"
         else:
             if humidity < 0.4:
@@ -132,6 +120,13 @@ class Terrain:
         return map
 
 
+    def invert_map(self, map):
+        for i in range(self.width):
+            for j in range(self.height):
+                map[i][j] = 1 - map[i][j]
+
+        return map
+
     def create_map_images(self):
         self.build_png("gradient.png", self.square_gradient)
         self.build_png("height_map.png", self.height_map)
@@ -152,24 +147,17 @@ class Terrain:
 
 
 
-
-
-
-
-
-
-
-def get_terrain_type(val):
-    if val < terrain_thresholds["sea"]:
-        return "sea"
-    elif val < terrain_thresholds["beach"]:
-        return "sand"
-    elif val < terrain_thresholds["grassland"]:
-        return "wilderness"
-    elif val < terrain_thresholds["forest"]:
-        return "forest"
-    else:
-        return "mountain"
+# def get_terrain_type(val):
+#     if val < terrain_thresholds["sea"]:
+#         return "sea"
+#     elif val < terrain_thresholds["beach"]:
+#         return "sand"
+#     elif val < terrain_thresholds["grassland"]:
+#         return "wilderness"
+#     elif val < terrain_thresholds["forest"]:
+#         return "forest"
+#     else:
+#         return "mountain"
 
 
 # def generate_tile(x, y):
