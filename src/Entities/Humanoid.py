@@ -188,7 +188,7 @@ class Humanoid(Mortal):
         baby.attr_int = int(inte)
         baby.attr_wis = int(wis)
         baby.attr_cha = int(cha)
-        baby.fname = names.get_first_name(gender=baby.sex)
+        baby.fname = names.get_first_name(gender=baby.sex, race=baby.race)
         baby.lname = mother.lname
         baby.name = baby.fname + " " + baby.lname
         baby.favorite_god = random.choice([g for g in state.gods if baby.race in g.worshiped_by])

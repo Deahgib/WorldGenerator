@@ -26,9 +26,6 @@ class City(Group):
         self.millitary = []
         self.buildings = {}
 
-
-
-
     def build_work(self, adults):
         self.work = list()
 
@@ -105,8 +102,8 @@ class City(Group):
         city = City()
         city.food = food_cost(len(settlers)) * 2
         city.wealth = city.population
-        city.name = rword.generate_random_words(1).capitalize()
         city.race = self.race
+        city.name = names.get_city_name(city.race)
         god = self.patron_god
         god.worshiped_by.add(city.race)
         city.patron_god = god
